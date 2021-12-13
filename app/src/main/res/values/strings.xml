@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AgendaApp</string>
+    <string name="contact_text_view">Contact</string>
+    <string name="name_edit_text">Name</string>
+    <string name="address_edit_text">Address</string>
+    <string name="phone_edit_text">Phone</string>
+    <string name="alert_edit_title">Attention</string>
+    <string name="alert_edit_msg">Some fields are incorrect! Do you really want to exit?</string>
+</resources>
