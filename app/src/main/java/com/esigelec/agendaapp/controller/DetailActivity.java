@@ -53,6 +53,8 @@ public class DetailActivity extends AppCompatActivity {
                 detail.setAddress(address);
                 detail.setPhone(phone);
             }
+            DataModel.getInstance().saveToFile(
+                    DetailActivity.this);
             finish();
         }else{
             AlertDialog.Builder builder = new AlertDialog.Builder(

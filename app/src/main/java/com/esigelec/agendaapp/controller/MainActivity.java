@@ -24,7 +24,7 @@ import java.io.OutputStreamWriter;
 public class MainActivity extends AppCompatActivity {
 
     ListView listView;
-    int createCalledXTimes = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
                 DataModel.getInstance().contacts.remove(i);
+                DataModel.getInstance().saveToFile(MainActivity.this);
                 updateListView();
                 if(i > 1){
                     listView.requestFocusFromTouch();
@@ -51,43 +52,11 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
-        loadCounterFromFile();
-        createCalledXTimes++;
-        Log.d("COUNTER","---"+createCalledXTimes);
-        saveCounterToFile();
+
+        DataModel.getInstance().loadFromFile(MainActivity.this);
     }
 
-    void loadCounterFromFile(){
-        try{
-            InputStream stream = MainActivity.this.
-                    openFileInput("counter.txt");
-            InputStreamReader reader = new InputStreamReader(stream);
-            createCalledXTimes = reader.read();
-            reader.close();
-            stream.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
-    void saveCounterToFile(){
-        try {
-            OutputStream stream = MainActivity.this.openFileOutput(
-                    "counter.txt",
-                    MODE_PRIVATE
-            );
-            OutputStreamWriter writer = new OutputStreamWriter(stream);
-            writer.write(createCalledXTimes);
-            writer.flush();
-            writer.close();
-            stream.close();
-        }catch (FileNotFoundException e){
-            e.printStackTrace();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-
-    }
 
 
     @Override
