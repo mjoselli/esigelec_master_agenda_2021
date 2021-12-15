@@ -6,4 +6,6 @@
     <string name="phone_edit_text">Phone</string>
     <string name="alert_edit_title">Attention</string>
     <string name="alert_edit_msg">Some fields are incorrect! Do you really want to exit?</string>
+    <string name="add_new_contact_button">Add New Contact</string>
+    <string name="undo_msg">Undo</string>
 </resources>

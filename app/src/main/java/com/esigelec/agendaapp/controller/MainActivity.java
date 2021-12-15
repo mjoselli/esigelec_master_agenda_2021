@@ -1,10 +1,16 @@
 package com.esigelec.agendaapp.controller;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -13,6 +19,7 @@ import android.widget.ListView;
 import com.esigelec.agendaapp.R;
 import com.esigelec.agendaapp.model.ContactDetail;
 import com.esigelec.agendaapp.model.DataModel;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -23,61 +30,80 @@ import java.io.OutputStreamWriter;
 
 public class MainActivity extends AppCompatActivity {
 
-    ListView listView;
+
+    RecyclerView mainRecyclerView;
+    ContactAdapter adapter = new ContactAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listView = findViewById(R.id.listView);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mainRecyclerView = findViewById(R.id.mainRecyclerView);
+        mainRecyclerView.setAdapter(adapter);
+        mainRecyclerView.setLayoutManager(
+                new LinearLayoutManager(MainActivity.this)
+        );
+        RecyclerView.ItemDecoration itemDecoration = new DividerItemDecoration(
+                MainActivity.this,DividerItemDecoration.VERTICAL
+        );
+        mainRecyclerView.addItemDecoration(itemDecoration);
+
+        adapter.setOnItemClickListener(new ContactAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView,
-                                    View view, int i, long l) {
-                goToDetailActivity(i);
+            public void onItemClick(View view, int position) {
+                goToDetailActivity(position);
             }
         });
-
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        adapter.setOnItemLongClickListener(new ContactAdapter.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
-                DataModel.getInstance().contacts.remove(i);
+            public void onItemLongClick(View view, int position) {
+                ContactDetail c = DataModel.getInstance().contacts.remove(position);
                 DataModel.getInstance().saveToFile(MainActivity.this);
-                updateListView();
-                if(i > 1){
-                    listView.requestFocusFromTouch();
-                    listView.setSelection(i - 1);
-                }
-                return true;
+                adapter.notifyItemRemoved(position);
+                View contextView = findViewById(android.R.id.content);
+                Snackbar.make(contextView,"Contact Removed",Snackbar.LENGTH_LONG)
+                        .setAction(getString(R.string.undo_msg), new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                DataModel.getInstance().contacts.add(position,c);
+                                DataModel.getInstance().saveToFile(MainActivity.this);
+                                adapter.notifyItemInserted(position);
+                            }
+                        })
+                        .show();
             }
         });
+
+
+
+        //TODO implement click listeners
 
         DataModel.getInstance().loadFromFile(MainActivity.this);
     }
 
 
-
-
     @Override
     protected void onResume() {
         super.onResume();
-        updateListView();
+        adapter.notifyDataSetChanged();
     }
 
-    protected void updateListView(){
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                MainActivity.this,
-                android.R.layout.simple_list_item_1,
-                android.R.id.text1,
-                DataModel.getInstance().getStringContacts()
-        );
-        listView.setAdapter(adapter);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main_activity,menu);
+        return true;
     }
 
-    public void addNewContactOnClick(View v){
-        goToDetailActivity(-1);
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if(id == R.id.action_add_item){
+            goToDetailActivity(-1);
+        }
+        return super.onOptionsItemSelected(item);
     }
+
     protected void goToDetailActivity(int index){
         Intent intent = new Intent(MainActivity.this,
                 DetailActivity.class);
