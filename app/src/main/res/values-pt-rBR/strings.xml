@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AgendaApp</string>
+    <string name="contact_text_view">Contato</string>
+    <string name="name_edit_text">Nome</string>
+    <string name="address_edit_text">Endereço</string>
+    <string name="phone_edit_text">Telefone</string>
+    <string name="alert_edit_title">Atenção</string>
+    <string name="alert_edit_msg">Todo</string>
+    <string name="add_new_contact_button">Todo</string>
+</resources>

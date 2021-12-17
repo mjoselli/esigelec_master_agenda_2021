@@ -2,6 +2,7 @@ package com.esigelec.agendaapp.model;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -18,52 +19,59 @@ public class DataModel {
     public static DataModel getInstance(){
         return instance;
     }
-    public ArrayList<ContactDetail> contacts;
+    private ArrayList<ContactDetail> contacts;
+    private ContactDatabase database;
 
-    public void loadFromFile(Context context){
-        try{
-            InputStream stream = context.openFileInput("contacts.txt");
-            InputStreamReader streamReader = new InputStreamReader(stream);
-            BufferedReader reader = new BufferedReader(streamReader);
-            contacts.clear();
-            String line;
-            while ((line = reader.readLine())!=null){
-                String []aux = line.split(";");
-                contacts.add(
-                        new ContactDetail(aux[0],aux[1],aux[2])
-                );
-            }
-            reader.close();
-            streamReader.close();
-            stream.close();
-        }catch (Exception e){
-            e.printStackTrace();
+    public void setContext(Context context){
+        database = new ContactDatabase(context);
+        contacts = database.retrieveContactsFromDB();
+    }
+    public ArrayList<ContactDetail> getContacts(){
+        return contacts;
+    }
+    public ContactDetail getContact(int position){
+        return contacts.get(position);
+    }
+    public boolean insertContact(ContactDetail c,int position){
+        long id = database.insertContactInDB(c);
+        if(id > 0){
+            contacts.add(position,c);
+            return true;
+        }else{
+            Log.wtf("Agenda","error saving contact in DB");
+            return false;
         }
     }
-
-    public void saveToFile(Context context){
-        try{
-            OutputStream stream = context.openFileOutput(
-                    "contacts.txt",
-                    Context.MODE_PRIVATE
-            );
-            OutputStreamWriter writer = new OutputStreamWriter(stream);
-            for (ContactDetail c:contacts) {
-                writer.write(c.getName()+ ";"+c.getAddress()+";"+c.getPhone()+"\n");
-            }
-            writer.flush();
-            writer.close();
-            stream.close();
-        }catch (Exception e){
-            e.printStackTrace();
+    public boolean addContact(ContactDetail c){
+        long id = database.createContactInDB(c);
+        if(id > 0){
+            c.setId(id);
+            contacts.add(c);
+            return true;
+        }else{
+            Log.wtf("Agenda","error saving contact in DB");
+            return false;
         }
     }
-
-    public ArrayList<String> getStringContacts(){
-        ArrayList<String>stringContacts = new ArrayList<>();
-        for (ContactDetail c:contacts) {
-            stringContacts.add(c.getName());
+    public boolean updateContact(ContactDetail c,int position){
+        int count = database.updateContactInDB(c);
+        if(count == 1){
+            contacts.set(position,c);
+            return true;
         }
-        return stringContacts;
+        Log.wtf("Agenda","error updating contact in DB");
+
+        return false;
+    }
+    public boolean removeContact(int position){
+        int count  = database.removeContactFromDB(
+                contacts.get(position)
+        );
+        if(count == 1){
+            contacts.remove(position);
+            return true;
+        }
+        Log.wtf("Agenda","error removing contact in DB");
+        return false;
     }
 }

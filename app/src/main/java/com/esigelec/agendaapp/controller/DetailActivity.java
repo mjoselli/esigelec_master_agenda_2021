@@ -29,7 +29,7 @@ public class DetailActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         index = extras.getInt("index");
         if(index != -1){
-            ContactDetail details = DataModel.getInstance().contacts.get(index);
+            ContactDetail details = DataModel.getInstance().getContact(index);
             nameEditText.setText(details.getName());
             addressEditText.setText(details.getAddress());
             phoneEditText.setText(details.getPhone());
@@ -44,17 +44,17 @@ public class DetailActivity extends AppCompatActivity {
 
         if(name.length() > 1 && (address.length() > 1 || phone.length() > 1)){
             if(index == -1) {
-                DataModel.getInstance().contacts.add(
+                DataModel.getInstance().addContact(
                         new ContactDetail(name, address, phone)
                 );
             }else{
-                ContactDetail detail = DataModel.getInstance().contacts.get(index);
-                detail.setName(name);
-                detail.setAddress(address);
-                detail.setPhone(phone);
+                ContactDetail c = DataModel.getInstance().getContact(index);
+                c.setName(name);
+                c.setAddress(address);
+                c.setPhone(phone);
+                DataModel.getInstance().updateContact(c,index);
             }
-            DataModel.getInstance().saveToFile(
-                    DetailActivity.this);
+
             finish();
         }else{
             AlertDialog.Builder builder = new AlertDialog.Builder(

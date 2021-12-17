@@ -78,8 +78,7 @@ public class ContactAdapter extends
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        ContactDetail contact = DataModel.getInstance()
-                .contacts.get(position);
+        ContactDetail contact = DataModel.getInstance().getContact(position);
         holder.textView1.setText(contact.getName());
         holder.textView2.setText(contact.getPhone());
 
@@ -87,6 +86,6 @@ public class ContactAdapter extends
 
     @Override
     public int getItemCount() {
-        return DataModel.getInstance().contacts.size();
+        return DataModel.getInstance().getContacts().size();
     }
 }
